@@ -1,10 +1,19 @@
 var game = new Phaser.Game(1800, 560, Phaser.CANVAS, 'game');
 
+//备注：飞板，钻石弹簧都要设置上边界的碰撞检测(已完成)
+//关于用代码生成箱子对象，然后设置水和地图与箱子的碰撞检测(已完成)
+//加入多线程进行地板的自动升降
+//更正一下，可以使用Tween来实现（已完成）
+//人物动画效果
+//弹簧动画效果（已完成）
+
 var map;
 //var layer1
 var layer;
 var p;
 var cursors;
+
+var scores = 0; //得分
 
 //设置一些对象变量
 //var flag;
@@ -13,11 +22,27 @@ var cursors;
 //var flag2;
 //var oblique_flag;
 //var flag;
-var diamonds;
+
 var box_cases;
+var box2;
+
+
+var diamonds;
 var coins;
 var lines;
 //var door_top;
+
+var spring; //钻石弹簧
+var spring2;
+var spring3;
+
+var fly_floor;
+
+var elevator;
+var tween_elevator;
+
+var isFly;
+var ifDrag;
 
 game.States = {};
 
@@ -64,6 +89,8 @@ game.States.preload = function() {
 
 
     game.load.image('player', 'assets/phaser-dude.png');
+    game.load.image('fly_floor', 'assets/move_land.png');
+    game.load.spritesheet('spring', 'assets/bounce.png', 35, 26, 2);//弹簧按钮
     //game.load.spritesheet('replaybutton', 'assets/replaybutton.png', 80, 30, 2);
     //game.load.spritesheet('sharebutton', 'assets/sharebutton.png', 80, 30, 2);
     /*game.load.image('mybullet', 'assets/mybullet.png');
@@ -176,22 +203,36 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
 	var objLayer = map.createLayer('OBJlayer');
     //layer.wrap = false;
     // wrap为true会填充整个区域
+    //elevators = game.add.group();
+    //elevators.enableBody = true;
+    //var elevator =  elevators.create(1000, 300, 'fly_floor');
+    //elevators.callAll(Up_and_Down);
+
     diamonds = game.add.group();
     diamonds.enableBody = true;
     map.createFromObjects('OBJlayer', 229, 'diamond', 0, true, false, diamonds);
     //
+    //可以移动的箱子类
     box_cases = game.add.group();
     box_cases.enableBody = true;
-    map.createFromObjects('OBJlayer', 168, 'case', 0, true, false, box_cases);
+
+    box2 = game.add.sprite(3173, 153, 'case');
+    game.physics.enable(box2);
+    //box2.body.mass = 1;
+    //box2.body.drag.setTo(10000);
+    box2.body.gravity.y = 1100;
+    //map.createFromObjects('OBJlayer', 168, 'case', 0, true, false, box_cases);
     //
     //
     coins = game.add.group();
     coins.enableBody = true;
     map.createFromObjects('OBJlayer', 228, 'coin', 0, true, false, coins);
     //
-    lines = game.add.group();
-    lines.enableBody = true;
-    map.createFromObjects('OBJlayer', 230, 'line', 0, true, false, lines);
+    lines = game.add.sprite(0, 555, 'line');
+    game.physics.enable(lines);
+    lines.body.immovable = true;
+    //map.createFromObjects('OBJlayer', 230, 'line', 0, true, false, lines);
+    //lines.setAll('body.immovable', false);
     //oblique_flag2 = game.add.sprite(251,50,'oblique_flag')
     //flag2 = game.add.sprite(1504, 92, 'flag');
     //oblique_flag = game.add.sprite(1600, 130, 'oblique_flag');
@@ -237,13 +278,37 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
     //map.createFromObjects('OBJlayer', 35, 'door', 0, true, false, objects);
     /////////////////////////////////////////////////////
     //开启人物的物理引擎
+    spring = game.add.sprite(200, 500, 'spring');
+    game.physics.enable(spring, Phaser.Physics.ARCADE);
+    spring.body.immovable = true;
+    spring.body.setSize(15, 5, 10, 0);
 
+    spring2 = game.add.sprite(1350, 500, 'spring');
+    game.physics.enable(spring2, Phaser.Physics.ARCADE);
+    spring2.body.immovable = true;
+    spring2.body.setSize(15, 5, 10, 0);
+
+    spring3 = game.add.sprite(3000, 500, 'spring');
+    game.physics.enable(spring3, Phaser.Physics.ARCADE);
+    spring3.body.immovable = true;
+    spring3.body.setSize(15, 5, 10, 0);
+    //spring.body.bounce.setTo(1, 1);
+
+    fly_floor = game.add.sprite(800, 400, 'fly_floor');
+    game.physics.enable(fly_floor, Phaser.Physics.ARCADE);
+    fly_floor.body.setSize(120, 10, 10, 0);
+
+    elevator = game.add.sprite(1000, 400, 'fly_floor');
+    game.physics.enable(elevator, Phaser.Physics.ARCADE);
+    elevator.body.immovable = true;
+    elevator.body.setSize(120, 10, 10, 0);
+    tween_elevator = game.add.tween(elevator).to({ y: 100 }, 4000, Phaser.Easing.Linear.None, true, 0, -1, true);
 
     p = game.add.sprite(132, 132, 'player');
     game.physics.enable(p);
     p.body.gravity.y = 1100;
     p.body.bounce.y = 0;
-    p.body.linearDamping = 1;
+    p.body.linearDamping = 1.2;
     p.body.collideWorldBounds = true;
 
     // camera
@@ -264,7 +329,22 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
         game.camera.y += 8;
     }
   */
-    game.physics.arcade.collide(p, layer);
+    if(fly_floor.y<100){
+      fly_floor.body.velocity.y = 0;
+      fly_floor.body.immovable = true;
+
+    }
+    //木板的顶点
+
+    game.physics.arcade.collide(p, layer, disBounce, null, this);
+    isFly = game.physics.arcade.collide(p, elevator, nonGravity, null, this);
+    if(isFly==true){
+      p.body.gravity.y = 10000;
+    }
+    if(isFly==false){
+      p.body.gravity.y = 1100;
+    }
+    
     //game.physics.arcade.overlap(p, oblique_flag2, collectObliqueFlag2,null, this); //overlap()函数调用
     //game.physics.arcade.overlap(p, flag2, collectFlag2,null, this);
     //game.physics.arcade.overlap(p, oblique_flag, collectObliqueFlag,null, this);
@@ -273,8 +353,27 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
     //game.physics.arcade.overlap(p, box_case, collectCase,null, this);
     //game.physics.arcade.overlap(p, coin, collectCoin,null, this);
     //game.physics.arcade.overlap(p, door_buttom, collectDoorButtom,null, this);
+    game.physics.arcade.collide(p, spring, springTo, null, this);
+    game.physics.arcade.collide(p, spring2, spring_To, null, this);
+    game.physics.arcade.collide(p, spring3, spring_To_To, null, this);
+
+
+    isDrag =  game.physics.arcade.collide(p, box2, collectCase,null, this);
+    if(isDrag==true){
+      box2.body.drag.setTo(10000);
+    }
+    if(isDrag==false){
+      box2.body.drag.setTo(0);
+    }
+
+    game.physics.arcade.collide(layer, box2);
+    game.physics.arcade.collide(lines, box2, killBox, null, this);
+
+
+    game.physics.arcade.collide(p, fly_floor, getFloor,null, this);
+
+
     game.physics.arcade.overlap(p, diamonds, collectDiamond,null, this);
-    game.physics.arcade.overlap(p, box_cases, collectCase,null, this);
     game.physics.arcade.overlap(p, coins, collectCoin,null, this);
     game.physics.arcade.overlap(p, lines, beKilled,null, this);
     //game.physics.arcade.overlap(p, 181, drown,null, this);
@@ -292,6 +391,21 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
         p.body.velocity.x = 150;
     }
   }
+
+  this.render = function() {
+
+    //game.debug.bodyInfo(box1);
+    //game.debug.bodyInfo(box2);
+    game.debug.body(box2);
+    game.debug.body(lines);
+    game.debug.body(spring);
+    game.debug.body(spring2);
+    game.debug.body(spring3);
+    game.debug.body(fly_floor);
+    game.debug.body(elevator);
+
+}
+        
 
   /*
   function collectObliqueFlag2(p, oblique_flag2) {
@@ -319,11 +433,70 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
     door_buttom.kill();
   }
   */
+  function nonGravity(p, elevator){
+    p.body.velocity.y = elevator.body.velocity.y;
+  }
+
+
+  function getFloor(p, fly_floor){
+    fly_floor.body.velocity.y = -100;
+
+    if (cursors.up.isDown) {
+    p.body.velocity.y = -500;        
+    }
+    if(fly_floor.y<100){
+      fly_floor.body.velocity.y = 0;
+      fly_floor.body.immovable = true;
+
+    }
+  }
+
+
+  function springTo(p, spring){
+
+    spring.animations.add('booo',[0, 1, 0], 25);
+    spring.animations.play('booo');
+    //if (cursors.up.isDown) {
+    p.body.velocity.y = -1000;
+            
+    //}
+
+    //p.body.bounce.y = 1.2;
+    //count = count+1;
+    //if(count>=5){
+      //p.body.bounce.y = 0;
+      //count = 0;
+    //}
+    //if(p.body.x>216 || p.body.x<184){
+     // p.body.bounce.y = 0;
+    //}
+    
+  }
+  function spring_To(p, spring){
+    spring.animations.add('booo_1',[0, 1, 0], 25);
+    spring.animations.play('booo_1');
+    p.body.velocity.y = -900;
+             
+  }
+
+  function spring_To_To(p, spring){
+    spring.animations.add('booo_2',[0, 1, 0], 25);
+    spring.animations.play('booo_2');
+    p.body.velocity.y = -1000;
+  }
+
+  function disBounce(p, layer){
+    p.body.bounce.y = 0;
+  }
   function collectDiamond(p, diamond) {
     diamond.kill();
   }
+
   function collectCase(p, box_case) {
-    box_case.kill();
+    //box_case.kill();
+    if (cursors.up.isDown) {
+    p.body.velocity.y = -500;        
+    }
   }
   function collectCoin(p, coin) {
     coin.kill();
@@ -331,6 +504,11 @@ var background = game.add.tileSprite(0, 0, 4200, 560, 'background');
   function beKilled(p, line) {
     p.kill();
   }
+
+  function killBox(line, box){
+    box.kill();
+  }
+
  
 }
 
