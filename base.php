@@ -41,8 +41,15 @@
 	}
 	
 	//数据库查询操作
+	$sql3 = "SELECT id, name, time,sorce FROM Game ORDER BY time";
+	$result3 = $conn->query($sql3);
+	
+	$sql4 = "SELECT id, name, time,sorce FROM Game ORDER BY sorce DESC";
+	$result4 = $conn->query($sql4);
+	
 	$sql2 = "SELECT id, name, time,sorce FROM Game ORDER BY sorce DESC";
 	$result = $conn->query($sql2);
+	
 	
 	echo '<html>
 	<head>
@@ -54,7 +61,7 @@
 	<link rel="stylesheet" href="css/normalize3.0.2.min.css" />
 	<link rel="stylesheet" href="css/css.css?v=15" />
 	</head>
-	<body>';
+	<body background="back.png">';
 	echo '<section id="ranking"> <span id="ranking_title">天梯榜</span>
 					<section id="ranking_list">';
 	
@@ -62,25 +69,28 @@
 	
 	//存储排名
 	$m="999+";
-	$i="0";
-	if (mysqli_num_rows($result) >0) {
+	$i=0;
+	if (mysqli_num_rows($result3) >0) {
 		// 输出数据
-		while($row = mysqli_fetch_assoc($result)) {
-			
-			$i=$i+1;
-			if($i==11)
+		while($row = mysqli_fetch_assoc($result3)) {
+			if($row["sorce"]!=560)
 			{
-				break;
+				continue;
 			}
-			if($sorce==$row["sorce"])
+			$i=$i+1;
+			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
 			{
 				$m=$i;
+			}
+			if($i>=11)
+			{
+				break;
 			}
 			if($i==1)
 			{
 				if($m==$i)
 				{
-					echo '<section class="box cur">';
+					echo '<section class="box">';
 				}
 				else
 				{
@@ -89,10 +99,20 @@
 				echo '<section class="col_1" title="1">';
 				echo $i;
 				echo '</section>
-					<section class="col_2"><img src="images/pic1.png"  /></section>
+					<section class="col_2"><img src="images/woniu.png"  /></section>
 					<section class="col_3">';
 					echo $row["name"];
-					echo '</section><section class="col_4">';
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo '<section class="col_4">';
 					echo $row["sorce"];
 					echo '</section></section>';
 			}
@@ -100,7 +120,7 @@
 			{
 				if($m==$i)
 				{
-					echo '<section class="box cur">';
+					echo '<section class="box">';
 				}
 				else
 				{
@@ -109,10 +129,20 @@
 				echo '<section class="col_1" title="2">';
 				echo $i;
 				echo '</section>
-					<section class="col_2"><img src="images/pic2.png"  /></section>
+					<section class="col_2"><img src="images/pig.png"  /></section>
 					<section class="col_3">';
 					echo $row["name"];
-					echo '</section><section class="col_4">';
+					echo'</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
 					echo $row["sorce"];
 					echo '</section></section>';
 			}
@@ -120,7 +150,7 @@
 			{
 				if($m==$i)
 				{
-					echo '<section class="box cur">';
+					echo '<section class="box">';
 				}
 				else
 				{
@@ -129,10 +159,20 @@
 				echo '<section class="col_1" title="3">';
 				echo $i;
 				echo '</section>
-					<section class="col_2"><img src="images/pic3.png"  /></section>
+					<section class="col_2"><img src="images/dog.png"  /></section>
 					<section class="col_3">';
 					echo $row["name"];
-					echo '</section><section class="col_4">';
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
 					echo $row["sorce"];
 					echo '</section></section>';
 			}
@@ -140,7 +180,7 @@
 			{
 				if($m==$i)
 				{
-					echo '<section class="box cur">';
+					echo '<section class="box">';
 				}
 				else
 				{
@@ -149,18 +189,181 @@
 				echo '<section class="col_1">';
 				echo $i;
 				echo '</section>
-					<section class="col_2"><img src="images/pic4.png"  /></section>
+					<section class="col_2"><img src="images/pic.jpg"  /></section>
 					<section class="col_3">';
 					echo $row["name"];
-					echo '</section><section class="col_4">';
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
+					echo $row["sorce"];
+					echo '</section></section>';
+			}	
+		}
+	}
+
+
+
+
+	if (mysqli_num_rows($result) >0) {
+		// 输出数据
+		while($row = mysqli_fetch_assoc($result)) {
+			if($row["sorce"]==560)
+			{
+				continue;
+			}
+			$i=$i+1;
+			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
+			{
+				$m=$i;
+			}
+			if($i>=11)
+			{
+				break;
+			}
+			if($i==1)
+			{
+				if($m==$i)
+				{
+					echo '<section class="box">';
+				}
+				else
+				{
+					echo '<section class="box">';
+				}
+				echo '<section class="col_1" title="1">';
+				echo $i;
+				echo '</section>
+					<section class="col_2"><img src="images/woniu.png"  /></section>
+					<section class="col_3">';
+					echo $row["name"];
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo '<section class="col_4">';
+					echo $row["sorce"];
+					echo '</section></section>';
+			}
+			if($i==2)
+			{
+				if($m==$i)
+				{
+					echo '<section class="box">';
+				}
+				else
+				{
+					echo '<section class="box">';
+				}
+				echo '<section class="col_1" title="2">';
+				echo $i;
+				echo '</section>
+					<section class="col_2"><img src="images/pig.png"  /></section>
+					<section class="col_3">';
+					echo $row["name"];
+					echo'</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
+					echo $row["sorce"];
+					echo '</section></section>';
+			}
+			if($i==3)
+			{
+				if($m==$i)
+				{
+					echo '<section class="box">';
+				}
+				else
+				{
+					echo '<section class="box">';
+				}
+				echo '<section class="col_1" title="3">';
+				echo $i;
+				echo '</section>
+					<section class="col_2"><img src="images/dog.png"  /></section>
+					<section class="col_3">';
+					echo $row["name"];
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
+					echo $row["sorce"];
+					echo '</section></section>';
+			}
+			if($i>=4)
+			{
+				if($m==$i)
+				{
+					echo '<section class="box">';
+				}
+				else
+				{
+					echo '<section class="box">';
+				}
+				echo '<section class="col_1">';
+				echo $i;
+				echo '</section>
+					<section class="col_2"><img src="images/pic.jpg"  /></section>
+					<section class="col_3">';
+					echo $row["name"];
+					echo '</section>';
+					echo '<section class="col_4">';
+					$tem=$row["time"]-$row["time"]%60;
+					$mi=$tem/60;
+					$se=$row["time"]%60;
+					echo $mi;
+					echo "分";
+					echo $se;
+					echo "秒";
+					echo '</section>';
+					echo'<section class="col_4">';
 					echo $row["sorce"];
 					echo '</section></section>';
 			}
 			
 			
 		}
+	}	
+if (mysqli_num_rows($result4) >0) {
+		// 输出数据
+		while($row = mysqli_fetch_assoc($result4)) {
+			
+			$i=$i+1;
+			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
+			{
+				$m=$i;
+			}
+			
+		}
 	}
-		
   echo '</section>
   <a id="play_game" href="index.html" title="开始游戏">重新开始</a> </section>
 	<a id="return_back" href="#" title="返回">我的排名：';
