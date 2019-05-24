@@ -264,9 +264,6 @@ game.States.over = function(){
   this.onReplayClick = function() {
     //this.normalback.stop();
     game.state.start('main');
-    try{
-        click_music.play();
-    }catch (e){}
     
     //得分
   };
@@ -921,7 +918,7 @@ game.States.start2 = function() {
   }
 
   function  updateTimerText2() {
-    time2 = Math.floor(game.time.totalElapsedSeconds() - startTime2)+time;
+    time2 = Math.floor(game.time.totalElapsedSeconds() - startTime)+time;
     //Convert seconds into minutes and seconds
     var minutes = Math.floor(time2 / 60);
     var seconds = Math.floor(time2) - (60 * minutes);
@@ -1312,7 +1309,7 @@ game.States.start4 = function() {
   }
 
   function  updateTimerText4() {
-    time4 = Math.floor(game.time.totalElapsedSeconds() - startTime4)+time3;
+    time4 = Math.floor(game.time.totalElapsedSeconds() - startTime3)+time3;
     //Convert seconds into minutes and seconds
     var minutes = Math.floor(time4 / 60);
     var seconds = Math.floor(time4) - (60 * minutes);
@@ -1686,7 +1683,7 @@ function collideBridge(){
 }
 
 function  updateTimerText3() {
-    time3 = Math.floor(game.time.totalElapsedSeconds() - startTime3)+time2;
+    time3 = Math.floor(game.time.totalElapsedSeconds() - startTime2)+time2;
     //Convert seconds into minutes and seconds
     var minutes = Math.floor(time3 / 60);
     var seconds = Math.floor(time3) - (60 * minutes);
@@ -1809,8 +1806,8 @@ game.States.start = function() {
     layer = map.createLayer('layer');
     // resizeWorld会根据tilemap重新设置world的大小
     layer.resizeWorld();
-    //layer.debugSettings.forceFullRedraw = true;
-      //var objLayer = map.createLayer('OBJlayer');
+	//layer.debugSettings.forceFullRedraw = true;
+	  //var objLayer = map.createLayer('OBJlayer');
   
 
     diamonds = game.add.group();
