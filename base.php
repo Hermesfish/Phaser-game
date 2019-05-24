@@ -43,13 +43,9 @@
 	//数据库查询操作
 	$sql3 = "SELECT id, name, time,sorce FROM Game ORDER BY time";
 	$result3 = $conn->query($sql3);
-	
-	$sql4 = "SELECT id, name, time,sorce FROM Game ORDER BY sorce DESC";
-	$result4 = $conn->query($sql4);
-	
+
 	$sql2 = "SELECT id, name, time,sorce FROM Game ORDER BY sorce DESC";
 	$result = $conn->query($sql2);
-	
 	
 	echo '<html>
 	<head>
@@ -69,22 +65,23 @@
 	
 	//存储排名
 	$m="999+";
-	$i=0;
+	$i="0";
 	if (mysqli_num_rows($result3) >0) {
 		// 输出数据
 		while($row = mysqli_fetch_assoc($result3)) {
-			if($row["sorce"]!=560)
+			if($row["sorce"]!=595)
 			{
-				continue;
+				break;
 			}
+			
 			$i=$i+1;
-			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
-			{
-				$m=$i;
-			}
 			if($i>=11)
 			{
 				break;
+			}
+			if($sorce==$row["sorce"])
+			{
+				$m=$i;
 			}
 			if($i==1)
 			{
@@ -205,9 +202,12 @@
 					echo'<section class="col_4">';
 					echo $row["sorce"];
 					echo '</section></section>';
-			}	
+			}
+			
+			
 		}
 	}
+
 
 
 
@@ -215,18 +215,15 @@
 	if (mysqli_num_rows($result) >0) {
 		// 输出数据
 		while($row = mysqli_fetch_assoc($result)) {
-			if($row["sorce"]==560)
-			{
-				continue;
-			}
+			
 			$i=$i+1;
-			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
-			{
-				$m=$i;
-			}
 			if($i>=11)
 			{
 				break;
+			}
+			if($sorce==$row["sorce"])
+			{
+				$m=$i;
 			}
 			if($i==1)
 			{
@@ -351,13 +348,14 @@
 			
 			
 		}
-	}	
-if (mysqli_num_rows($result4) >0) {
+	}
+		
+if (mysqli_num_rows($result) >0) {
 		// 输出数据
-		while($row = mysqli_fetch_assoc($result4)) {
+		while($row = mysqli_fetch_assoc($result)) {
 			
 			$i=$i+1;
-			if($sorce=$row["sorce"] && $name=$row["name"] && $time=$row["time"])
+			if($sorce==$row["sorce"])
 			{
 				$m=$i;
 			}
